@@ -12,8 +12,10 @@ jobs:
         with: {distribution: temurin, java-version: 17}
       - run: |
           mkdir www && cp index.html www/
-          npm i --no-save @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+                    npm i --no-save @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/assets@3
           npx cap add android
+          mkdir assets && cp icon.png assets/icon.png
+          npx capacitor-assets generate --android
           npx cap sync android
           cd android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
