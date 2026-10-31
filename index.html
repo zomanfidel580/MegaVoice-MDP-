@@ -139,6 +139,55 @@ main{max-width:min(1180px,100%);padding-left:max(12px,env(safe-area-inset-left,0
 .rtm{display:flex;align-items:baseline;gap:12px;margin:10px 0 4px}
 .rtm b{font-size:1.7rem;font-variant-numeric:tabular-nums;color:#fff}
 .rtm span{color:var(--lm);font-size:.85rem}
+
+/* ===== Mise en page type clavier arrangeur : tout tient à l'écran, boutons autour de l'écran ===== */
+html,body{height:100%;overflow:hidden}
+body{background:radial-gradient(130% 100% at 50% 0,#343a44 0,#15171b 55%,#07080a 100%)}
+main{max-width:none!important;height:100dvh;padding:6px!important;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:6px}
+main>.hint{display:none}
+.panel{padding:6px 10px;border-radius:12px;background:linear-gradient(#5b616c,#2c3037 12%,#1f2227);border:1px solid #000;box-shadow:0 4px 10px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.3)}
+.panel>:not(.top){display:none}
+.top{margin:0;color:#e9ecf1}.logo small{color:#9aa3b0}
+#mid{display:grid;min-height:0;gap:8px;grid-template-columns:minmax(120px,1fr) minmax(0,2.6fr) minmax(120px,1fr);grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"L lcd R" "L lyr R"}
+#colL{grid-area:L}#colR{grid-area:R}#mid>.lcd{grid-area:lcd}#mid>.layers{grid-area:lyr}
+#colL,#colR{overflow:auto;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;padding:8px;border-radius:12px;background:linear-gradient(#3a3f48,#1e2126);border:1px solid #000;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 10px rgba(0,0,0,.6);color:#e9ecf1}
+#colL .sb,#colR .ctl,#colR .live,#colL .pads{margin:0;width:100%}
+#colR .ctl .grp{flex:1 1 auto;justify-content:center}
+#colL .pads{grid-template-columns:repeat(2,1fr)}
+#mid>.lcd{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#mid>.lcd .pg{flex:1;min-height:0;max-height:none!important;overflow:auto}
+.deck{margin:0!important;padding:6px 8px;border-radius:12px;background:linear-gradient(#2a2d34,#0b0c0e);border-top:3px solid #5b616c;box-shadow:0 -3px 10px rgba(0,0,0,.6);align-items:stretch}
+:root{--kbh:clamp(90px,26vh,220px)}
+@media (max-aspect-ratio:1/1){
+ #mid{display:flex;flex-direction:column;overflow:auto}
+ #mid>.lcd{flex:0 0 auto;min-height:230px;order:1}#colL{order:2}#mid>.layers{order:3}#colR{order:4}
+ #colL,#colR{flex:0 0 auto;overflow:visible}
+ :root{--kbh:clamp(90px,20vh,170px)}}
+/* relief 3D */
+button,select{background:linear-gradient(#5a606b,#2d3139);color:#eef0f4;border:1px solid #050608;border-bottom:3px solid #050608;border-radius:8px;text-shadow:0 -1px 0 #000;box-shadow:0 2px 4px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.28)}
+button:active{transform:translateY(2px);border-bottom-width:1px;box-shadow:inset 0 2px 5px rgba(0,0,0,.8)}
+button[aria-pressed=true]{background:linear-gradient(#ffc766,#ff8c00);color:#1a1000;text-shadow:0 1px 0 rgba(255,255,255,.4);box-shadow:0 0 12px rgba(255,159,26,.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.lcd button,.lcd select{background:var(--lb);color:var(--lt);border:1px solid var(--lbd);text-shadow:none;box-shadow:none;transform:none}
+.lcd button[aria-pressed=true]{background:var(--acc);color:#111}
+.lcd{border:6px solid #0a0b0d;border-radius:12px;box-shadow:0 0 0 2px #4b515c,0 6px 14px rgba(0,0,0,.8),inset 0 0 22px rgba(0,0,0,.6)}
+.pad{background:radial-gradient(circle at 50% 30%,#59606b,#1b1d22 80%);border:1px solid #000;border-radius:12px;box-shadow:inset 0 3px 6px rgba(255,255,255,.14),inset 0 -5px 9px #000,0 3px 5px rgba(0,0,0,.7)}
+.pad:active{transform:scale(.96)}
+.knob{background:conic-gradient(#f2f2f2,#6d737d,#e4e6ea,#50555e,#f2f2f2);border:2px solid #0a0b0d;box-shadow:0 4px 8px rgba(0,0,0,.7),inset 0 2px 3px rgba(255,255,255,.7)}
+.wheel{filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}.wh{color:#c9ced6}
+input[type=file]::file-selector-button{min-height:44px;padding:8px 14px;margin-right:8px;border-radius:8px;font:inherit;font-weight:700;border:1px solid #000;background:linear-gradient(#ffc766,#ff8c00);color:#1a1000}
+/* corrections de mise en page */
+main{grid-template-columns:minmax(0,1fr)}
+#mid,.deck,.kbcol,.panel{min-width:0}
+.kbwrap{overflow-x:auto;overflow-y:hidden}
+.kb{height:var(--kbh)!important}.wheel{height:calc(var(--kbh) - 20px)!important}
+:root{--kbh:clamp(80px,25vh,200px)}
+@media (max-height:520px){.panel{padding:3px 8px}.top .row{gap:6px}.top button{min-height:32px!important;padding:3px 8px}.logo small,.deck+.hint{display:none}
+ .lcd .tabs button{padding:3px 6px;min-height:30px!important}}
+#colL button,#colR button{padding:3px 6px;font-size:.72rem;min-height:30px!important}
+#colR .grp{flex-wrap:wrap;gap:4px}#colL .pads{grid-template-columns:repeat(4,1fr);gap:4px}#colL .pad{height:34px}
+#colL .sb,#colL .row{gap:4px;flex-wrap:wrap}
+#kst{height:36px;margin-bottom:5px;border-radius:8px;background:rgba(255,255,255,.07);border:1px dashed #5b616c;color:#8f98a5;font-size:.72rem;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none}
+.kbwrap{scrollbar-width:none}.kbwrap::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -204,7 +253,7 @@ main{max-width:min(1180px,100%);padding-left:max(12px,env(safe-area-inset-left,0
   <div class="pg" id="pg-sty" hidden>
    <h4>Styles intégrés</h4><div class="cats" id="stl"></div>
    <h4>Kit de batterie</h4><div class="cats" id="kitl"></div>
-   <div class="row"><input type="file" id="kfl" accept="audio/*" multiple><button id="kfc">Retirer les sons perso</button></div><div id="kslots"></div><p class="hint" id="kfh">Pack de batterie : choisissez un fichier par instrument ci-dessus, ou sélectionnez plusieurs fichiers d’un coup (noms contenant kick/bd, snare/sd, clap, hat/hh, open/oh, crash, ride, tom). Vos sons sont conservés sur cet appareil et forment le kit « Mon kit perso », sélectionné automatiquement et utilisé par les styles et les pads ; un instrument sans fichier reste synthétisé. Les toms sont accordés automatiquement.</p>
+   <div class="row"><input type="file" id="kfl" accept="audio/*" multiple><button id="kfc">Retirer les sons perso</button></div><div id="kslots"></div><p class="hint" id="kfh">Pack de batterie : choisissez un fichier par instrument ci-dessus, ou sélectionnez plusieurs fichiers d’un coup (noms contenant kick/bd, snare/sd, clap, hat/hh, open/oh, crash, ride, tom). Vos sons sont conservés sur cet appareil et forment le kit « Mon kit perso », sélectionné automatiquement et utilisé par les styles et les pads ; un instrument sans fichier reste synthétisé. Les toms sont accordés automatiquement. Sur l’écran de jeu, un appui long sur un pad (Kick, Snare, Hat, Open, Clap, Tom, Crash, Ride) permet de remplacer directement son son ; les pads jouent vos sons quel que soit le kit choisi.</p>
    <h4>Style (fichier)</h4>
    <div class="row"><input type="file" id="sty"><b id="sn">Aucun style chargé</b></div>
    <div class="row" style="margin-top:8px"><label class="row">Tempo <b id="tpv">120</b><input type="range" id="tp" min="40" max="240" value="120" style="width:120px"></label><span>Accord : <b id="chd">C maj</b></span></div>
@@ -273,7 +322,7 @@ main{max-width:min(1180px,100%);padding-left:max(12px,env(safe-area-inset-left,0
 <div class="deck">
  <div class="wh">BEND<input type="range" class="wheel" id="pb" min="-100" max="100" value="0" aria-label="Molette de hauteur"></div>
  <div class="wh">MOD<input type="range" class="wheel" id="mw" min="0" max="100" value="0" aria-label="Molette de modulation"></div>
- <div class="kbcol"><input type="range" id="ksc" min="0" max="1000" value="0" aria-label="Faire défiler les octaves"><div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div></div>
+ <div class="kbcol"><input type="range" id="ksc" min="0" max="1000" value="0" hidden aria-hidden="true"><div id="kst" aria-label="Zone tactile : glisser pour faire défiler, pincer pour zoomer">↔ glisser · pincer pour zoomer ⤢</div><div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div></div>
 </div>
 <p class="hint">Clavier PC (AZERTY) : Q S D F G H J K L M pour les blanches, Z E T Y U O P pour les noires. Les touches soulignées en orange sont celles du clavier PC ; faites défiler pour voir les autres octaves.</p>
 </main>
@@ -528,7 +577,7 @@ function slideTo(id,m){
 
 // Interface
 var kb=$("kb");var KW=44;
-function calcKW(){var W=$("kbw").clientWidth||window.innerWidth,vis=W<400?8:W<560?10:W<760?13:W<1000?16:22;return Math.max(28,Math.min(64,Math.floor(W/vis)));}
+function calcKW(){var W=$("kbw").clientWidth||window.innerWidth,vis=W<400?8:W<560?10:W<760?13:W<1000?16:22;return Math.max(22,Math.min(140,Math.floor(W/vis*(window.ZM||1))));}
 function buildKeys(){
   kb.innerHTML="";var lo=24,hi=96,BL={1:1,3:1,6:1,8:1,10:1},nw=0,wi=0,i;
   for(i=lo;i<=hi;i++)if(!BL[i%12])nw++;
@@ -862,12 +911,12 @@ function pnote(ch,m,v,t,d){
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(pk,t+a);g.gain.setValueAtTime(pk,e);g.gain.setTargetAtTime(0,e,.04);
   o.connect(lp);lp.connect(g);g.connect(acc());o.start(t);o.stop(e+.4);
 }
-function drum(n,v,t){
+function drum(n,v,t,pad){
   var A=acc(),vv=v/127;
   if(!nb){var k=ctx.sampleRate,dd;nb=ctx.createBuffer(1,k,k);dd=nb.getChannelData(0);for(var i=0;i<k;i++)dd[i]=Math.random()*2-1;}
   function noise(ty,f,dec,amp){var s=ctx.createBufferSource(),b=bq(ty,f),g=gn(0);s.buffer=nb;s.connect(b);b.connect(g);g.connect(A);g.gain.setValueAtTime(amp*vv,t);g.gain.exponentialRampToValueAtTime(.001,t+dec);s.start(t,Math.random()*.5,dec+.02);}
   function tone(f0,f1,dec,amp){var o=ctx.createOscillator(),g=gn(0);o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dec);g.gain.setValueAtTime(amp*vv,t);g.gain.exponentialRampToValueAtTime(.001,t+dec);o.connect(g);g.connect(A);o.start(t);o.stop(t+dec+.02);}
-  var ds=KIT.perso?DS[n]:null;if(ds){var bs=ctx.createBufferSource(),bg=gn(vv*1.2);bs.buffer=ds;if([41,43,45,47,48,50].indexOf(n)>=0)bs.playbackRate.value=Math.pow(2,(n-45)/12);bs.connect(bg);bg.connect(A);bs.start(t);return;}
+  var ds=(KIT.perso||pad)?DS[n]:null;if(ds){var bs=ctx.createBufferSource(),bg=gn(vv*1.2);bs.buffer=ds;if([41,43,45,47,48,50].indexOf(n)>=0)bs.playbackRate.value=Math.pow(2,(n-45)/12);bs.connect(bg);bg.connect(A);bs.start(t);return;}
   var K=KIT;
   if(n===35||n===36)tone(K.k0,K.k1,K.kd,.9);
   else if(n===38||n===40){noise("bandpass",K.sf,K.sd,.5);if(K.st)tone(220,120,.1,K.st);}
@@ -932,15 +981,16 @@ $("tp").addEventListener("input",function(e){bpm=+e.target.value;$("tpv").textCo
 [["r1","Rhythm 1"],["r2","Rhythm 2"],["b","Bass"],["c1","Chord 1"],["c2","Chord 2"],["p","Pad"],["f1","Phrase 1"],["f2","Phrase 2"]].forEach(function(x){
   var b=document.createElement("button");b.textContent=x[1];b.setAttribute("aria-pressed","true");
   b.onclick=function(){mute[x[0]]=!mute[x[0]];b.setAttribute("aria-pressed",!mute[x[0]]);};$("mut").appendChild(b);});
+function rdFile(f){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){r.result.byteLength<14?ko(new Error("fichier vide ou inaccessible. Choisissez-le dans Téléchargements ou Documents, pas dans Récents ou Drive.")):ok(r.result);};r.onerror=function(){ko(new Error("lecture impossible"));};r.readAsArrayBuffer(f);});}
 $("sty").addEventListener("change",function(e){
   var f=e.target.files[0],inp=e.target;if(!f)return;
-  f.arrayBuffer().then(function(ab){
+  $("sn").textContent="Lecture de "+f.name+"…";
+  rdFile(f).then(function(ab){
     var r=parseSMF(new Uint8Array(ab));if(!r.secs.length)throw new Error("Aucune section (Intro, Main, Fill, Ending) trouvée dans ce fichier.");
     styStop();r.name=f.name.replace(/\.[^.]+$/,"");ST=r;bpm=Math.max(40,Math.min(240,r.bpm));$("tp").value=bpm;$("tpv").textContent=bpm;
     var m=r.secs.filter(function(s){return/^main/i.test(s.name);})[0]||r.secs[0];T.main=m.name;
     $("sn").textContent=f.name+" : "+r.secs.length+" sections · ♩="+bpm+(r.ts?" · "+r.ts:"")+(r.casm?" · règles d’accords CASM simplifiées":"");buildSecs();
-  }).catch(function(er){$("sn").textContent="Erreur : "+er.message;});
-  inp.value="";
+  }).catch(function(er){$("sn").textContent="Erreur : "+er.message;}).then(function(){inp.value="";});
 });
 // Réglages LEFT / RIGHT 1 / RIGHT 2
 $("sp").addEventListener("input",function(e){split=+e.target.value;$("spv").textContent=NN[split%12]+(Math.floor(split/12)-1);markSplit();});
@@ -1004,10 +1054,14 @@ function buildMix(){
     l.textContent=m[0];d.appendChild(r);d.appendChild(l);box.appendChild(d);
   });
 }
-// Multi Pads
+// Multi Pads : appui long = remplacer le son par un fichier audio
+var PSL=["kick","snare","hat","open","clap","tom","crash","ride"],PADN=0,pslot=null,pfi=document.createElement("input");pfi.type="file";pfi.accept="audio/*";pfi.style.display="none";document.body.appendChild(pfi);
+pfi.onchange=function(){var g=pfi.files[0],sl=pslot;pfi.value="";if(!g||!sl)return;loadDrum(sl,g).then(function(){buildSlots();playSlot(sl);}).catch(function(){});};
 [["Kick",36],["Snare",38],["Hat",42],["Open",46],["Clap",39],["Tom",45],["Crash",49],["Ride",51]].forEach(function(x){
-  var b=document.createElement("button");b.className="pad";b.textContent=x[0];
-  b.addEventListener("pointerdown",function(e){e.preventDefault();init();drum(x[1],100,ctx.currentTime);});$("pads").appendChild(b);
+  var b=document.createElement("button"),i=PSL.length?PADN++:0,tm=null;b.className="pad";b.textContent=x[0];b.title="Appui long : remplacer ce son";
+  b.addEventListener("pointerdown",function(e){e.preventDefault();init();drum(x[1],100,ctx.currentTime,1);clearTimeout(tm);tm=setTimeout(function(){pslot=PSL[i];pfi.click();},650);});
+  ["pointerup","pointerleave","pointercancel"].forEach(function(ev){b.addEventListener(ev,function(){clearTimeout(tm);});});
+  $("pads").appendChild(b);
 });
 // Live Control : 6 boutons assignés
 [["Tone",0,100,60,function(v){fx[4]=v;applyFx();}],["Reverb",0,100,25,function(v){fx[3]=v;applyFx();}],["Echo",0,100,0,function(v){fx[2]=v;applyFx();}],
@@ -1444,6 +1498,29 @@ recUI();
 var rzT;function onSize(){clearTimeout(rzT);rzT=setTimeout(function(){if(calcKW()!==KW){buildKeys();scrollKb(false);}},150);}
 window.addEventListener("resize",onSize);window.addEventListener("orientationchange",onSize);
 buildKeys();scrollKb(false);applyView();buildEnv();setVoice("nylon");showTab("home");idbLoad();
+})();
+</script>
+<script>
+(function(){
+var d=document,m=d.querySelector("main"),mid=d.createElement("div"),L=d.createElement("div"),R=d.createElement("div"),g=function(i){return d.getElementById(i);};
+mid.id="mid";L.id="colL";R.id="colR";
+["ots","regs"].forEach(function(i){L.appendChild(g(i));});L.appendChild(g("sqp").parentNode);L.appendChild(g("pads"));
+R.appendChild(d.querySelector(".ctl"));R.appendChild(g("live"));R.appendChild(g("st"));
+mid.appendChild(L);mid.appendChild(d.querySelector(".lcd"));mid.appendChild(d.querySelector(".layers"));mid.appendChild(R);
+m.insertBefore(mid,d.querySelector(".hw"));d.querySelector(".hw").remove();
+window.ZM=1;var t=d.querySelector(".top .row");
+function zb(txt,f,tt){var b=d.createElement("button");b.textContent=txt;b.title=tt;b.onclick=function(){zoomBy(f);};t.appendChild(b);}
+zb("Touches −",1/1.25,"Dézoomer le clavier");zb("Touches +",1.25,"Zoomer le clavier");
+g("kbw").addEventListener("wheel",function(e){if(e.ctrlKey){e.preventDefault();zoomBy(e.deltaY<0?1.1:.9);}},{passive:false});
+var st=g("kst"),kw=g("kbw"),Q={},sd=0,z0=1,tz=null,fr=0;
+function cen(){var w=kw.scrollWidth;return w?(kw.scrollLeft+kw.clientWidth/2)/w:0;}
+function applyZ(){clearTimeout(tz);tz=setTimeout(function(){window.dispatchEvent(new Event("resize"));setTimeout(function(){kw.scrollLeft=fr*kw.scrollWidth-kw.clientWidth/2;},280);},90);}
+function zoomBy(f){fr=cen();window.ZM=Math.max(.5,Math.min(3,window.ZM*f));applyZ();}
+function dst(){var k=Object.keys(Q);return Math.hypot(Q[k[0]].x-Q[k[1]].x,Q[k[0]].y-Q[k[1]].y)||1;}
+st.addEventListener("pointerdown",function(e){st.setPointerCapture(e.pointerId);Q[e.pointerId]={x:e.clientX,y:e.clientY};if(Object.keys(Q).length===2){sd=dst();z0=window.ZM;}});
+st.addEventListener("pointermove",function(e){var p=Q[e.pointerId];if(!p)return;var n=Object.keys(Q).length,dx=e.clientX-p.x;p.x=e.clientX;p.y=e.clientY;
+  if(n===1)kw.scrollLeft-=dx*2.5;else if(n===2){fr=cen();window.ZM=Math.max(.5,Math.min(3,z0*dst()/sd));applyZ();}});
+["pointerup","pointercancel"].forEach(function(v){st.addEventListener(v,function(e){delete Q[e.pointerId];});});
 })();
 </script>
 </body>
