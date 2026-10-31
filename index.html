@@ -188,6 +188,55 @@ main{grid-template-columns:minmax(0,1fr)}
 #colL .sb,#colL .row{gap:4px;flex-wrap:wrap}
 #kst{height:36px;margin-bottom:5px;border-radius:8px;background:rgba(255,255,255,.07);border:1px dashed #5b616c;color:#8f98a5;font-size:.72rem;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none}
 .kbwrap{scrollbar-width:none}.kbwrap::-webkit-scrollbar{display:none}
+
+/* ===== Clavier escamotable (glissement vertical sur la bande) ===== */
+.kbwrap{height:calc(var(--kbh) + 6px);transition:height .22s ease,opacity .18s ease,padding .22s ease}
+.deck.kh .kbwrap{height:0;padding:0;opacity:0;pointer-events:none}
+.deck.kh .wh{display:none}
+.deck.kh{padding-top:4px;padding-bottom:4px}
+.deck.kh #kst{height:32px;margin-bottom:0;border-style:solid;color:#c9ced6}
+
+/* ===== Paysage : interface virtuelle ajustée au plus grand format qui tient (échelle calculée par le script) ===== */
+html.fit{font-size:14px!important}
+html.fit main{position:fixed;left:0;top:0;transform-origin:0 0;padding:5px!important;gap:5px}
+html.fit .panel{padding:3px 10px;border-radius:10px}
+html.fit .logo{font-size:1rem}
+html.fit .top .row{gap:8px}
+html.fit .top button{min-height:32px!important;padding:4px 12px;font-size:.85rem}
+html.fit #mid{gap:5px;grid-template-columns:minmax(190px,.8fr) minmax(0,1.5fr) minmax(330px,1.25fr)}
+html.fit #colL,html.fit #colR{padding:6px;gap:5px;flex-wrap:nowrap;flex-direction:column;justify-content:space-between;overflow:hidden;align-content:stretch}
+html.fit #colL button,html.fit #colR button{padding:3px 8px;font-size:.8rem;min-height:30px!important}
+html.fit #colL .pad{height:36px}
+html.fit #colL .pads{gap:5px}
+html.fit #colL .sb,html.fit #colL .row{gap:5px}
+html.fit #colR .ctl{flex:1 1 auto;gap:6px;align-content:space-between;margin:0}
+html.fit .grp{padding:3px 8px;gap:6px}
+html.fit .knob{width:38px;height:38px}
+html.fit #colR input[type=range]{min-height:20px;margin:0}
+html.fit .live{gap:3px 10px;grid-template-columns:repeat(3,1fr)}
+html.fit .live label{font-size:.62rem}
+html.fit #colR #st{display:none}
+html.fit #mid>.lcd{border-width:5px;padding:6px;border-radius:10px}
+html.fit .lcd .bar{padding-bottom:3px;margin-bottom:5px;gap:8px}
+html.fit .bar b{font-size:1.05rem}
+html.fit #hm{grid-template-columns:repeat(4,1fr);gap:6px;height:100%;grid-auto-rows:1fr}
+html.fit .hc{min-height:0;padding:6px 8px}
+html.fit .hc.or{grid-column:span 2}
+html.fit .hc:last-child{grid-column:span 4}
+html.fit .hc small{font-size:.65rem}
+html.fit .hc b{font-size:.88rem}
+html.fit #regs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+html.fit #regs button{padding:3px 0}
+html.fit .hc{overflow:hidden}
+html.fit .hc b{line-height:1.15}
+html.fit #mid>.layers{height:28px;margin-top:0}
+html.fit .seg{font-size:.68rem}
+html.fit .seg small{display:none}
+html.fit .deck{padding:4px 8px;gap:8px;border-top-width:2px}
+html.fit .wh{font-size:.6rem}
+html.fit .wheel{width:26px}
+html.fit #kst{height:24px;margin-bottom:4px;font-size:.68rem}
+html.fit .deck.kh #kst{height:32px;margin-bottom:0}
 </style>
 </head>
 <body>
@@ -577,7 +626,7 @@ function slideTo(id,m){
 
 // Interface
 var kb=$("kb");var KW=44;
-function calcKW(){var W=$("kbw").clientWidth||window.innerWidth,vis=W<400?8:W<560?10:W<760?13:W<1000?16:22;return Math.max(22,Math.min(140,Math.floor(W/vis*(window.ZM||1))));}
+function calcKW(){var W=$("kbw").clientWidth||window.innerWidth,vis=W<400?8:W<560?10:W<760?13:W<1000?16:22;if(window.FIT)return Math.max(8,W/43);if(window.FS){var tw=Math.max(40,Math.min(72,innerWidth/16));return Math.max(8,Math.min(160,tw/window.FS*(window.ZM||1)));}return Math.max(8,Math.min(140,Math.floor(W/vis*(window.ZM||1))));}
 function buildKeys(){
   kb.innerHTML="";var lo=24,hi=96,BL={1:1,3:1,6:1,8:1,10:1},nw=0,wi=0,i;
   for(i=lo;i<=hi;i++)if(!BL[i%12])nw++;
@@ -1510,17 +1559,58 @@ mid.appendChild(L);mid.appendChild(d.querySelector(".lcd"));mid.appendChild(d.qu
 m.insertBefore(mid,d.querySelector(".hw"));d.querySelector(".hw").remove();
 window.ZM=1;var t=d.querySelector(".top .row");
 function zb(txt,f,tt){var b=d.createElement("button");b.textContent=txt;b.title=tt;b.onclick=function(){zoomBy(f);};t.appendChild(b);}
-zb("Touches −",1/1.25,"Dézoomer le clavier");zb("Touches +",1.25,"Zoomer le clavier");
+zb("Touches −",1/1.25,"Dézoomer le clavier");(function(){var b=d.createElement("button");b.textContent="Tout";b.title="Afficher toutes les touches du clavier";b.onclick=function(){window.FIT=true;fr=0;applyZ();};t.appendChild(b);})();zb("Touches +",1.25,"Zoomer le clavier");
 g("kbw").addEventListener("wheel",function(e){if(e.ctrlKey){e.preventDefault();zoomBy(e.deltaY<0?1.1:.9);}},{passive:false});
 var st=g("kst"),kw=g("kbw"),Q={},sd=0,z0=1,tz=null,fr=0;
 function cen(){var w=kw.scrollWidth;return w?(kw.scrollLeft+kw.clientWidth/2)/w:0;}
 function applyZ(){clearTimeout(tz);tz=setTimeout(function(){window.dispatchEvent(new Event("resize"));setTimeout(function(){kw.scrollLeft=fr*kw.scrollWidth-kw.clientWidth/2;},280);},90);}
-function zoomBy(f){fr=cen();window.ZM=Math.max(.5,Math.min(3,window.ZM*f));applyZ();}
+function fitZM(){var W=kw.clientWidth||innerWidth;return(W<400?8:W<560?10:W<760?13:W<1000?16:22)/43;}
+function leaveFit(){if(window.FIT){window.ZM=fitZM();window.FIT=false;}}
+function zoomBy(f){leaveFit();fr=cen();window.ZM=Math.max(.3,Math.min(3,window.ZM*f));applyZ();}
 function dst(){var k=Object.keys(Q);return Math.hypot(Q[k[0]].x-Q[k[1]].x,Q[k[0]].y-Q[k[1]].y)||1;}
-st.addEventListener("pointerdown",function(e){st.setPointerCapture(e.pointerId);Q[e.pointerId]={x:e.clientX,y:e.clientY};if(Object.keys(Q).length===2){sd=dst();z0=window.ZM;}});
-st.addEventListener("pointermove",function(e){var p=Q[e.pointerId];if(!p)return;var n=Object.keys(Q).length,dx=e.clientX-p.x;p.x=e.clientX;p.y=e.clientY;
-  if(n===1)kw.scrollLeft-=dx*2.5;else if(n===2){fr=cen();window.ZM=Math.max(.5,Math.min(3,z0*dst()/sd));applyZ();}});
-["pointerup","pointercancel"].forEach(function(v){st.addEventListener(v,function(e){delete Q[e.pointerId];});});
+
+// Paysage : l'interface est dessinée dans un écran virtuel, puis mise à l'échelle la plus grande possible sans que rien ne déborde
+var root=d.documentElement,fs=null,fT=null;
+function over(){var a=g("colL"),b=g("colR"),k=d.querySelector(".lcd .bar");return a.scrollHeight>a.clientHeight+1||b.scrollHeight>b.clientHeight+1||m.scrollHeight>m.clientHeight+1;}
+function fitUI(){
+  var w=innerWidth,h=innerHeight,land=w>h*1.05;
+  if(!land){
+    if(fs!==false){root.classList.remove("fit");root.style.removeProperty("--kbh");["width","height","transform"].forEach(function(k){m.style.removeProperty(k);});window.FIT=false;window.ZM=1;fs=false;clearTimeout(fT);fT=setTimeout(function(){window.dispatchEvent(new Event("resize"));},30);}
+    return;}
+  root.classList.add("fit");
+  var s=Math.min(h/330,w/780,2.6),lo=s*.45;
+  for(var i=0;i<40;i++){
+    var H=h/s;
+    root.style.setProperty("--kbh",Math.round(Math.max(70,Math.min(150,H*.22)))+"px");
+    m.style.setProperty("width",(w/s)+"px","important");m.style.setProperty("height",H+"px","important");m.style.setProperty("transform","scale("+s+")","important");
+    if(!over()||s<=lo)break;
+    s*=.97;
+  }
+  if(fs!==true){window.FIT=true;fs=true;clearTimeout(fT);fT=setTimeout(function(){window.dispatchEvent(new Event("resize"));},30);}
+}
+window.addEventListener("resize",fitUI);window.addEventListener("orientationchange",function(){setTimeout(fitUI,200);});
+fitUI();
+// Clavier escamotable : glisser vers le bas sur la bande = masquer, vers le haut = afficher
+var dk=d.querySelector(".deck"),HK="mvl_kbhid",TXT_ON="↔ glisser · pincer pour zoomer ⤢ · ↓ glisser vers le bas pour masquer",TXT_OFF="↑ glisser vers le haut (ou toucher) pour afficher le clavier";
+function setKb(hid,keep){dk.classList.toggle("kh",hid);st.textContent=hid?TXT_OFF:TXT_ON;
+  if(!keep){try{localStorage.setItem(HK,hid?"1":"0");}catch(e){}}}
+var kh0=false;try{kh0=localStorage.getItem(HK)==="1";}catch(e){}
+setKb(kh0,true);
+st.addEventListener("pointerdown",function(e){st.setPointerCapture(e.pointerId);Q[e.pointerId]={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t0:Date.now(),m:""};if(Object.keys(Q).length===2){leaveFit();sd=dst();z0=window.ZM;Object.keys(Q).forEach(function(k){Q[k].m="z";});}});
+st.addEventListener("pointermove",function(e){var p=Q[e.pointerId];if(!p)return;var n=Object.keys(Q).length,dx=e.clientX-p.x,tx=e.clientX-p.x0,ty=e.clientY-p.y0;p.x=e.clientX;p.y=e.clientY;
+  if(n===1){
+    if(!p.m&&(Math.abs(tx)>8||Math.abs(ty)>8))p.m=Math.abs(ty)>Math.abs(tx)?"v":"h";
+    if(p.m==="h")kw.scrollLeft-=dx*2.5;
+    else if(p.m==="v"){
+      var hid=dk.classList.contains("kh");
+      if(!hid&&ty>26){setKb(true);p.m="x";}
+      else if(hid&&ty<-26){setKb(false);p.m="x";}
+    }
+  }else if(n===2){fr=cen();window.ZM=Math.max(.3,Math.min(3,z0*dst()/sd));applyZ();}});
+st.addEventListener("pointerup",function(e){var p=Q[e.pointerId];
+  if(p&&!p.m&&Date.now()-p.t0<350&&Object.keys(Q).length===1&&dk.classList.contains("kh"))setKb(false); // simple toucher : réafficher
+  delete Q[e.pointerId];});
+st.addEventListener("pointercancel",function(e){delete Q[e.pointerId];});
 })();
 </script>
 </body>
