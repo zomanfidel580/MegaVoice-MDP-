@@ -237,6 +237,24 @@ html.fit .wh{font-size:.6rem}
 html.fit .wheel{width:26px}
 html.fit #kst{height:24px;margin-bottom:4px;font-size:.68rem}
 html.fit .deck.kh #kst{height:32px;margin-bottom:0}
+
+/* ===== Barre de transport : Start/Stop, tempo, sections du style, parties, banques ===== */
+main{grid-template-rows:auto minmax(0,1fr) auto auto}
+#xbar{display:flex;flex-direction:column;gap:5px;padding:6px 8px;border-radius:12px;background:linear-gradient(#3a3f48,#1e2126);border:1px solid #000;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 10px rgba(0,0,0,.6);color:#e9ecf1;max-height:34vh;overflow:auto}
+#xbar .xr{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center}
+#xbar .xg{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0}
+#xbar .sb{margin:0;display:flex;flex-wrap:wrap;gap:5px 14px}
+#xbar .sb .row{display:flex;gap:5px;flex-wrap:nowrap}
+#xbar .pbb{margin:0;gap:5px;flex:0 0 auto}
+#xbar .pbb button{flex:none;font-weight:600;padding:3px 10px}
+#xbar button{padding:3px 9px;font-size:.74rem;min-height:30px!important}
+#xtp{min-width:2.6em;text-align:center;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.top .rc{padding:4px 9px}
+html.fit #xbar{padding:4px 8px;gap:4px;max-height:none;overflow:visible}
+html.fit #xbar button{min-height:27px!important;padding:2px 8px;font-size:.72rem}
+html.fit #xbar .xr{gap:4px 12px}
+html.fit #xbar .sb{gap:4px 12px}
+html.fit .top .rc{min-height:30px!important;padding:2px 9px}
 </style>
 </head>
 <body>
@@ -1569,8 +1587,23 @@ function leaveFit(){if(window.FIT){window.ZM=fitZM();window.FIT=false;}}
 function zoomBy(f){leaveFit();fr=cen();window.ZM=Math.max(.3,Math.min(3,window.ZM*f));applyZ();}
 function dst(){var k=Object.keys(Q);return Math.hypot(Q[k[0]].x-Q[k[1]].x,Q[k[0]].y-Q[k[1]].y)||1;}
 
+// Barre de transport : les rangées de commandes du style, de tempo, des parties et des banques sont déplacées sous l'écran
+var xb=d.createElement("div");xb.id="xbar";
+var r1=d.createElement("div"),r2=d.createElement("div"),gb=d.createElement("div");r1.className="xr";r2.className="xr";gb.className="xg";
+var xt=d.createElement("span");xt.id="xtp";xt.title="Tempo";xt.textContent=g("tpv").textContent;
+var tr=g("sgo").parentNode;tr.classList.add("xg");tr.insertBefore(xt,g("tpp"));
+new MutationObserver(function(){xt.textContent=g("tpv").textContent;}).observe(g("tpv"),{childList:true,characterData:true,subtree:true});
+["rbm","rbp","rfz","rmem"].forEach(function(i){gb.appendChild(g(i));});
+r1.appendChild(tr);r1.appendChild(g("bl").parentNode);
+r2.appendChild(g("sbt"));r2.appendChild(gb);
+xb.appendChild(r1);xb.appendChild(r2);m.insertBefore(xb,d.querySelector(".deck"));
+// Enregistrements : lecture audio, lecture des notes, stop (à côté de REC)
+[["▶","Écouter l’enregistrement","rpl"],["♪","Rejouer les notes","rnp"],["■","Stop","rst"]].forEach(function(x,i){
+  var b=d.createElement("button"),o=g(x[2]);b.className="rc";b.textContent=x[0];b.title=x[1];b.disabled=o.disabled;
+  b.onclick=function(){o.click();};t.insertBefore(b,t.children[1+i]);
+  new MutationObserver(function(){b.disabled=o.disabled;}).observe(o,{attributes:true,attributeFilter:["disabled"]});});
 // Paysage : l'interface est dessinée dans un écran virtuel, puis mise à l'échelle la plus grande possible sans que rien ne déborde
-var root=d.documentElement,fs=null,fT=null;
+var root=d.documentElement,fs=null,fT=null,fT2=null;
 function over(){var a=g("colL"),b=g("colR"),k=d.querySelector(".lcd .bar");return a.scrollHeight>a.clientHeight+1||b.scrollHeight>b.clientHeight+1||m.scrollHeight>m.clientHeight+1;}
 function fitUI(){
   var w=innerWidth,h=innerHeight,land=w>h*1.05;
@@ -1579,13 +1612,13 @@ function fitUI(){
     return;}
   root.classList.add("fit");
   var s=Math.min(h/330,w/780,2.6),lo=s*.45;
-  for(var i=0;i<40;i++){
-    var H=h/s;
+  function apply(v){var H=h/v;
     root.style.setProperty("--kbh",Math.round(Math.max(70,Math.min(150,H*.22)))+"px");
-    m.style.setProperty("width",(w/s)+"px","important");m.style.setProperty("height",H+"px","important");m.style.setProperty("transform","scale("+s+")","important");
-    if(!over()||s<=lo)break;
-    s*=.97;
-  }
+    m.style.setProperty("width",(w/v)+"px","important");m.style.setProperty("height",H+"px","important");m.style.setProperty("transform","scale("+v+")","important");}
+  function shrink(){for(var i=0;i<40;i++){apply(s);if(!over()||s<=lo)break;s*=.97;}}
+  shrink();
+  // second passage une fois les polices et le clavier reconstruits
+  clearTimeout(fT2);fT2=setTimeout(shrink,350);setTimeout(function(){if(over()){shrink();}},1200);
   if(fs!==true){window.FIT=true;fs=true;clearTimeout(fT);fT=setTimeout(function(){window.dispatchEvent(new Event("resize"));},30);}
 }
 window.addEventListener("resize",fitUI);window.addEventListener("orientationchange",function(){setTimeout(fitUI,200);});
