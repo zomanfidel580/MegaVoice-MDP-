@@ -1,0 +1,3 @@
+{"name":"megavoice-lab","version":"1.0.0","description":"MegaVoice Lab","author":"MegaVoice","main":"main.js",
+"devDependencies":{"electron":"^31.0.0","electron-builder":"^24.13.3"},
+"build":{"appId":"com.megavoice.lab","productName":"MegaVoice Lab","files":["main.js","index.html"],"win":{"target":"nsis"}}}
