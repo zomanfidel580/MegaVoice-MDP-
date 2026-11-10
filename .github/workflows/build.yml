@@ -11,9 +11,10 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: 17}
       - run: |
-          mkdir www && cp index.html www/
-                    npm i --no-save @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/assets@3
+          mkdir www && cp index.html mv_*.js www/
+          npm i --no-save @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/assets@3
           npx cap add android
+          sed -i 's/<activity /<activity android:screenOrientation="sensorLandscape" /' android/app/src/main/AndroidManifest.xml
           mkdir assets && cp icon.png assets/icon.png
           npx capacitor-assets generate --android
           npx cap sync android
