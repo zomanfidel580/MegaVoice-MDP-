@@ -4461,9 +4461,10 @@ function tickSound(){try{var Q=window.MVQ,c=Q&&Q.ctx();if(!c)return;var o=c.crea
 var HM=(function(){var v=lsGet("mvl_haptic");return v==="all"?"all":(v==="0"||v==="off")?"off":"dial";})();
 var HL={off:"désactivée",dial:"molette seule",all:"toutes les touches"};
 function hapUI(){var b=document.getElementById("hapbtn");if(b)b.setAttribute("data-mode",HM);[].forEach.call(document.querySelectorAll("#hapbtn button"),function(x){x.setAttribute("aria-pressed",x.dataset.m===HM?"true":"false");});}
-window.MVHP={get:function(){return HM!=="off";},mode:function(){return HM;},set:function(v){HM=v===true?"dial":v===false?"off":(HL[v]?v:"dial");lsSet("mvl_haptic",HM);hapUI();if(HM!=="off"){try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}}}};
-document.addEventListener("pointerdown",function(e){if(HM!=="all")return;var t=e.target;if(t&&t.closest&&t.closest('button,.k,[role="button"],[role="tab"],summary,select,input')){try{if(navigator.vibrate)navigator.vibrate(9);}catch(x){}}},true);
-function detent(){if(HM==="off")return;try{if(navigator.vibrate)navigator.vibrate(7);}catch(e){}tickSound();var d=document.getElementById("dial");if(d){d.classList.add("tick");setTimeout(function(){d.classList.remove("tick");},60);}}
+function mvBuzz(ms){try{var C=window.Capacitor,H=C&&C.Plugins&&C.Plugins.Haptics;if(H&&H.vibrate){H.vibrate({duration:Math.max(ms,15)});return;}}catch(e){}try{if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}}
+window.MVHP={get:function(){return HM!=="off";},mode:function(){return HM;},set:function(v){HM=v===true?"dial":v===false?"off":(HL[v]?v:"dial");lsSet("mvl_haptic",HM);hapUI();if(HM!=="off"){try{mvBuzz(12);}catch(e){}}}};
+document.addEventListener("pointerdown",function(e){if(HM!=="all")return;var t=e.target;if(t&&t.closest&&t.closest('button,.k,[role="button"],[role="tab"],summary,select,input')){try{mvBuzz(9);}catch(x){}}},true);
+function detent(){if(HM==="off")return;try{mvBuzz(7);}catch(e){}tickSound();var d=document.getElementById("dial");if(d){d.classList.add("tick");setTimeout(function(){d.classList.remove("tick");},60);}}
 function wireDial(){var d=document.getElementById("dial");if(!d||d.__hp)return;d.__hp=1;var last=null,acc=0;
  function ang(e){var r=d.getBoundingClientRect();return Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2))*180/Math.PI;}
  d.addEventListener("pointerdown",function(e){last=ang(e);acc=0;},true);
@@ -4648,5 +4649,196 @@ list();
 window.MVSF2={install:install,list:list};
 })();
 </script>
+<style id="ui33css">
+#mid{position:relative}
+#mid>.lcd{margin-left:34px!important;margin-right:34px!important}
+html.nosb #mid>.lcd,html.rot #mid>.lcd,html.so #mid>.lcd{margin-left:0!important;margin-right:0!important}
+.sbs{position:absolute;top:0;bottom:0;width:30px;left:0;z-index:6;pointer-events:none}
+.sbs button{position:absolute;left:3px;width:24px;height:30px;margin-top:-15px;padding:0;pointer-events:auto;font:700 11px system-ui,sans-serif;border-radius:3px;border:1px solid #070809;background:linear-gradient(#eceef1,#a9afb8 55%,#8a919b);color:#1a1d22;box-shadow:0 2px 0 #3b4048,0 3px 5px rgba(0,0,0,.6);transition:top .15s}
+.sbs button:not(.has){opacity:.45}
+.sbs button:active,.sbs button.fl{background:linear-gradient(#ffc27a,#f08a24);transform:translateY(2px);box-shadow:0 0 0 #3b4048}
+html.nosb .sbs,html.rot .sbs,html.so .sbs{display:none!important}
+.sbhl{outline:2px solid #ffb35a!important;outline-offset:-2px}
+/* Menu Function : 2 colonnes x 5 lignes, remplies colonne par colonne (A–E à gauche, F–J à droite) comme sur un clavier Yamaha */
+#fnl.tiles{display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-rows:repeat(5,31px);grid-auto-flow:column;gap:4px}
+#fnl.tiles .tile{height:31px!important;min-height:0!important;text-align:left;padding:2px 8px;overflow:hidden;line-height:1.15;font-size:11px}
+#fnl.tiles .tile small{font-size:9px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}
+#hwhelp{position:fixed;inset:0;z-index:99990;background:rgba(2,8,18,.82);display:flex;align-items:center;justify-content:center;padding:14px}
+#hwhelp[hidden]{display:none}
+#hwhelp .box{max-width:980px;width:100%;max-height:92vh;overflow:auto;background:#0b1626;color:#e6f0ff;border:1px solid #2b5c9a;border-radius:10px;padding:14px 16px;font:13px/1.45 system-ui,sans-serif}
+#hwhelp h3{margin:0 0 8px;font-size:16px}#hwhelp h4{margin:12px 0 4px;color:#ffb35a;font-size:13px}
+#hwhelp .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px 22px}
+#hwhelp .r{display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(120,160,210,.18);padding:2px 0}
+#hwhelp kbd{background:#1b2c46;border:1px solid #3a5a8a;border-radius:4px;padding:0 6px;font:600 12px ui-monospace,monospace;white-space:nowrap}
+#hwhelp .x{float:right}
+#hwtoast{position:fixed;left:50%;top:12px;transform:translateX(-50%);max-width:88vw;padding:9px 14px;border-radius:9px;background:rgba(4,12,26,.96);color:#fff;font:600 12px system-ui,sans-serif;z-index:99991;opacity:0;pointer-events:none;transition:opacity .25s}
+#hwtoast.on{opacity:1}
+</style>
+<script id="ui33js">
+(function(){
+var d=document,$=function(i){return d.getElementById(i);},H=d.documentElement,lcd=d.querySelector(".lcd");
+if(!lcd||!window.MVQ)return;
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}return null;}
+var hwOn=ls("mvl_hwmap")!=="0",sbOn=ls("mvl_sb")!=="0";
+H.classList.toggle("nosb",!sbOn);
+function clk(id){var e=$(id);if(e&&!e.disabled){e.click();return true;}return false;}
+// ---------- Boutons A–J autour de l’écran : mapping automatique sur les éléments de la page affichée ----------
+var L=d.createElement("div"),R=d.createElement("div"),SB=[],MAP=new Array(10),MID=lcd.parentNode;
+L.className="sbs l";R.className="sbs r";
+"ABCDEFGHIJ".split("").forEach(function(ch,i){var b=d.createElement("button");b.type="button";b.textContent=ch;b.setAttribute("aria-label","Bouton "+ch);b.dataset.i=i;b.onclick=function(){press(i);};SB.push(b);(i<5?L:R).appendChild(b);});
+MID.appendChild(L);MID.appendChild(R);
+function pageRoot(){var p=[].filter.call(lcd.querySelectorAll(".pg"),function(e){return !e.hidden&&e.offsetParent!==null;});return p.length?p[p.length-1]:lcd;}
+function items(){var root=pageRoot(),rr=root.getBoundingClientRect(),out=[],q=root.querySelectorAll("button,.tile,.nv"),i,n=0;
+ for(i=0;i<q.length&&n<700;i++){var e=q[i];if(e.disabled||e.offsetParent===null)continue;
+  if(e.closest(".tabs,.sbs,.bar,[hidden]"))continue;
+  var r=e.getBoundingClientRect();if(r.width<28||r.height<14)continue;n++;
+  var vx=Math.min(r.right,rr.right)-Math.max(r.left,rr.left),vy=Math.min(r.bottom,rr.bottom)-Math.max(r.top,rr.top);
+  if(vx<r.width*.6||vy<r.height*.6)continue;
+  out.push({e:e,r:r});}
+ // on garde l’élément le plus interne si l’un contient l’autre
+ out=out.filter(function(a){return !out.some(function(b){return b!==a&&a.e.contains(b.e);});});
+ return{list:out,rr:rr};}
+function layout(){if(!sbOn||H.classList.contains("rot")){MAP=new Array(10);return;}
+ var it=items(),l=it.list,rr=it.rr,mid=(rr.left+rr.right)/2,wide=l.filter(function(x){return x.r.width>rr.width*.6;}).length;
+ var m=new Array(10),i;
+ l.sort(function(a,b){return a.r.top-b.r.top||a.r.left-b.r.left;});
+ if(l.length&&wide>l.length*.6){for(i=0;i<l.length&&i<10;i++)m[i]=l[i];}
+ else{var A=[],B=[];l.forEach(function(x){((x.r.left+x.r.width/2)<mid?A:B).push(x);});
+  A.slice(0,5).forEach(function(x,k){m[k]=x;});B.slice(0,5).forEach(function(x,k){m[5+k]=x;});}
+ MAP=m;var lr=lcd.getBoundingClientRect(),mr=MID.getBoundingClientRect(),sc=(MID.offsetWidth?mr.width/MID.offsetWidth:1)||1,ot=(lr.top-mr.top)/sc,h=lr.height/sc;
+ L.style.left=((lr.left-mr.left)/sc-31)+"px";R.style.left=((lr.right-mr.left)/sc+1)+"px";
+ SB.forEach(function(b,k){var x=m[k];b.classList.toggle("has",!!x);var y=x?(x.r.top+x.r.height/2-mr.top)/sc:ot+h*((k%5)+.5)/5;b.style.top=Math.max(ot+15,Math.min(ot+h-15,y))+"px";});}
+function press(i){var x=MAP[i];if(!x||!x.e.isConnected)return false;var b=SB[i];b.classList.add("fl");setTimeout(function(){b.classList.remove("fl");},140);try{x.e.scrollIntoView({block:"nearest"});}catch(e){}x.e.classList.add("sbhl");setTimeout(function(){x.e.classList.remove("sbhl");},250);x.e.click();setTimeout(sched,60);return true;}
+var pend=0;function sched(){if(pend)return;pend=setTimeout(function(){pend=0;requestAnimationFrame(layout);},110);}
+new MutationObserver(function(ms){if(ms.every(function(m){return m.target.closest&&m.target.closest(".sbs");}))return;sched();}).observe(lcd,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","class","style"]});
+lcd.addEventListener("scroll",sched,true);window.addEventListener("resize",sched);setTimeout(layout,600);
+// ---------- Navigation ----------
+function tabStep(n){var t=$("tabs");if(!t)return;var b=[].slice.call(t.querySelectorAll("button")).filter(function(x){return x.offsetParent!==null;}),k=b.findIndex(function(x){return x.getAttribute("aria-pressed")==="true"||x.classList.contains("on");});
+ if(!b.length)return;b[(Math.max(k,0)+n+b.length)%b.length].click();}
+function exit(){if(window.MVHUD&&MVHUD.active){MVHUD.close();return;}clk("dex");}
+// ---------- Clavier : mapping général ----------
+var SEC={F2:["m",0],F3:["m",1],F4:["m",2],F5:["m",3],F6:["f",0],F7:["f",1],F8:["f",2],F9:["f",3]},SECS={F2:["i",0],F3:["i",1],F4:["i",2],F5:["k",0],F6:["e",0],F7:["e",1],F8:["e",2]};
+function sec(k,n){var b=d.querySelector('#sbt button[data-k="'+k+'"][data-n="'+n+'"]');if(b)b.click();return !!b;}
+function regs(n){var g=[].slice.call(d.querySelectorAll("#regs button")).filter(function(b){return b.offsetParent!==null;});if(!g.length)g=[].slice.call(d.querySelectorAll("#regs button"));if(g[n]){g[n].click();return true;}return false;}
+function form(t){var n=t&&t.tagName;return n==="INPUT"||n==="TEXTAREA"||n==="SELECT"||(t&&t.isContentEditable);}
+function modal(){return !!d.querySelector("#scr.on,#stu.on,#hwhelp:not([hidden])");}
+var helpEl=null;
+function help(show){if(!helpEl)buildHelp();helpEl.hidden=show===false?true:(show===true?false:!helpEl.hidden);}
+function key(e){
+ if(!hwOn)return false;var c=e.code,tg=e.target,F=form(tg);
+ if(c==="F1"){e.preventDefault();help();return true;}
+ if(helpEl&&!helpEl.hidden){if(c==="Escape"){help(false);e.preventDefault();return true;}return false;}
+ if(F||e.ctrlKey||e.metaKey)return false;
+ if(e.altKey){var m=/^Key([A-J])$/.exec(c);if(m){e.preventDefault();press(m[1].charCodeAt(0)-65);return true;}
+  if(c==="ArrowLeft"){e.preventDefault();tabStep(-1);return true;}if(c==="ArrowRight"){e.preventDefault();tabStep(1);return true;}return false;}
+ if(modal())return false;
+ var s=e.shiftKey,btn=tg&&tg.tagName==="BUTTON",h;
+ if(c==="Escape"){e.preventDefault();exit();return true;}
+ if(c==="Space"){e.preventDefault();clk("sgo");return true;}
+ if(c==="Enter"&&!btn){e.preventDefault();if(window.MVHUD&&MVHUD.active)MVHUD.close();else clk("de");return true;}
+ if(c==="Backspace"){e.preventDefault();clk("nBack");return true;}
+ if({ArrowUp:"du",ArrowDown:"dd",ArrowLeft:"dl",ArrowRight:"dr"}[c]){e.preventDefault();clk({ArrowUp:"du",ArrowDown:"dd",ArrowLeft:"dl",ArrowRight:"dr"}[c]);return true;}
+ if((h=(s?SECS:SEC)[c])){e.preventDefault();sec(h[0],h[1]);return true;}
+ if(c==="Home"){e.preventDefault();clk("ssy");return true;}
+ if(c==="End"){e.preventDefault();clk("ssp");return true;}
+ if(c==="Insert"){e.preventDefault();clk("sfl");return true;}
+ if(c==="Backslash"){e.preventDefault();clk("met");return true;}
+ if(c==="Equal"||c==="NumpadAdd"){e.preventDefault();clk("tpp");return true;}
+ if(c==="Minus"||c==="NumpadSubtract"){e.preventDefault();clk("tpm");return true;}
+ if(c==="NumpadMultiply"){e.preventDefault();clk("stap");return true;}
+ if(c==="PageUp"){e.preventDefault();clk("oP");return true;}
+ if(c==="PageDown"){e.preventDefault();clk("oM");return true;}
+ if(c==="BracketRight"){e.preventDefault();clk("tP");return true;}
+ if(c==="BracketLeft"){e.preventDefault();clk("tM");return true;}
+ if(c==="Comma"){e.preventDefault();tabStep(-1);return true;}
+ if(c==="Period"){e.preventDefault();tabStep(1);return true;}
+ if(/^(Digit|Numpad)[1-8]$/.test(c)&&!s){e.preventDefault();regs(+c.slice(-1)-1);return true;}
+ if(e.key==="?"){e.preventDefault();help();return true;}
+ return false;}
+window.addEventListener("keydown",function(e){var first=!H.classList.contains("hwkb")&&!e.repeat&&e.key.length>0&&!/^(Shift|Control|Alt|Meta)$/.test(e.key);
+ if(first){H.classList.add("hwkb");if(hwOn&&!ls("mvl_hwhint")){ls("mvl_hwhint","1");toast("Clavier détecté : mapping automatique actif. F1 = liste des raccourcis. Alt+A…J = boutons autour de l’écran.");}}
+ key(e);},true);
+// ---------- Souris ----------
+function stepRange(r,dir,big){var st=+r.step||1,mn=r.min!==""?+r.min:0,mx=r.max!==""?+r.max:100,v=Math.max(mn,Math.min(mx,(+r.value)+dir*st*(big?10:1)));if(v!==+r.value){r.value=v;r.dispatchEvent(new Event("input",{bubbles:true}));r.dispatchEvent(new Event("change",{bubbles:true}));}}
+window.addEventListener("wheel",function(e){if(!hwOn||e.ctrlKey)return;var t=e.target,dir=e.deltaY<0?1:-1;if(!e.deltaY)return;
+ if(window.MVHUD&&MVHUD.active){e.preventDefault();MVHUD.turn(dir);return;}
+ if(t.closest&&t.closest("#tpv,#tpm,#tpp,#stap")){e.preventDefault();clk(dir>0?"tpp":"tpm");return;}
+ if(t.closest&&t.closest("#tr,#tM,#tP")){e.preventDefault();clk(dir>0?"tP":"tM");return;}
+ if(t.closest&&t.closest("#oM,#oP")){e.preventDefault();clk(dir>0?"oP":"oM");return;}
+ if(t.tagName==="INPUT"&&t.type==="range"&&!t.disabled){e.preventDefault();stepRange(t,dir,e.shiftKey);}
+},{passive:false,capture:true});
+lcd.addEventListener("contextmenu",function(e){if(!hwOn)return;e.preventDefault();exit();});
+lcd.addEventListener("auxclick",function(e){if(!hwOn||e.button!==1)return;e.preventDefault();if(window.MVHUD&&MVHUD.active)MVHUD.close();else clk("de");});
+d.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"&&!H.classList.contains("hwmouse")){H.classList.add("hwmouse");if(hwOn&&!ls("mvl_hwhint2")){ls("mvl_hwhint2","1");toast("Souris détectée : molette sur les curseurs et sur Tempo / Trans / Oct, clic droit sur l’écran = EXIT, clic molette = OK.");}}},true);
+// ---------- Aide + réglages ----------
+var tt=null,TO=d.createElement("div");TO.id="hwtoast";d.body.appendChild(TO);
+function toast(t){TO.textContent=t;TO.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){TO.classList.remove("on");},6500);}
+var ROWS=[["Jeu",[["Lettres Q Z S E D F T G Y H U J K O L P M","Notes du clavier (déjà existant)"],["Maj (maintenue)","Dead note"],["Page ↑ / Page ↓","Octave + / −"],["[  /  ]","Transposition − / +"],["+  /  −  (pavé numérique aussi)","Tempo + / −"],["* (pavé numérique)","Tap tempo"],["1 … 8","Mémoires de registration"]]],
+ ["Style",[["Espace","Start"],["Home / Fin","Sync Start / Sync Stop"],["Inser.","Auto Fill In"],["\\","Métronome"],["F2 F3 F4 F5","Main A B C D"],["F6 F7 F8 F9","Fill A B C D"],["Maj + F2 F3 F4","Intro 1 2 3"],["Maj + F5","Break"],["Maj + F6 F7 F8","Ending 1 2 3"]]],
+ ["Navigation (comme les boutons du panneau)",[["← ↑ ↓ →","Croix directionnelle de la molette"],["Entrée","OK de la molette"],["Échap","EXIT"],["Retour arrière","BACK"],["Alt + A … J","Boutons A–J autour de l’écran"],["Alt + ← / →  ou  , / .","Onglet précédent / suivant de l’écran"],["F1  ou  ?","Cette aide"]]],
+ ["Souris",[["Molette sur un curseur","Règle la valeur (Maj = ×10)"],["Molette sur Tempo, Trans, Oct","Règle la valeur"],["Molette pendant un réglage plein écran","Règle la valeur"],["Clic droit sur l’écran","EXIT"],["Clic molette sur l’écran","OK"],["Glisser la molette","Rotation de la molette (déjà existant)"]]]];
+function buildHelp(){helpEl=d.createElement("div");helpEl.id="hwhelp";helpEl.hidden=true;var b=d.createElement("div");b.className="box";var x=d.createElement("button");x.type="button";x.className="x";x.textContent="Fermer (Échap)";x.onclick=function(){help(false);};b.appendChild(x);var h=d.createElement("h3");h.textContent="Clavier et souris : mapping automatique";b.appendChild(h);
+ ROWS.forEach(function(g){var t=d.createElement("h4");t.textContent=g[0];b.appendChild(t);var gr=d.createElement("div");gr.className="g";g[1].forEach(function(r){var l=d.createElement("div");l.className="r";var k=d.createElement("kbd");k.textContent=r[0];var s=d.createElement("span");s.textContent=r[1];l.appendChild(s);l.appendChild(k);gr.appendChild(l);});b.appendChild(gr);});
+ var n=d.createElement("p");n.style.opacity=".75";n.textContent="Les raccourcis sont ignorés pendant la saisie de texte et quand le Style Creator ou le Studio est ouvert.";b.appendChild(n);helpEl.appendChild(b);helpEl.addEventListener("pointerdown",function(e){if(e.target===helpEl)help(false);});d.body.appendChild(helpEl);}
+function card(){var hb=$("hapbtn"),par=hb&&hb.closest(".card");if(!par)return;var c=d.createElement("div");c.className="card";c.id="hwcard";c.innerHTML="<h4>Clavier et souris</h4><p class=\"hint\">Mapping automatique : dès que vous tapez sur une touche ou utilisez la souris, l’App l’active (F1 = liste complète).</p><div class=\"row\"><button id=\"hwb1\" type=\"button\"></button><button id=\"hwb2\" type=\"button\"></button><button id=\"hwb3\" type=\"button\">Voir les raccourcis (F1)</button></div>";par.parentNode.appendChild(c);
+ function ui(){$("hwb1").textContent="Mapping clavier/souris : "+(hwOn?"activé":"désactivé");$("hwb1").setAttribute("aria-pressed",hwOn);$("hwb2").textContent="Boutons A–J : "+(sbOn?"affichés":"masqués");$("hwb2").setAttribute("aria-pressed",sbOn);}
+ $("hwb1").onclick=function(){hwOn=!hwOn;ls("mvl_hwmap",hwOn?"1":"0");ui();};
+ $("hwb2").onclick=function(){sbOn=!sbOn;ls("mvl_sb",sbOn?"1":"0");H.classList.toggle("nosb",!sbOn);ui();sched();layout();};
+ $("hwb3").onclick=function(){help(true);};ui();}
+card();
+window.MVNAV={press:press,map:function(){return MAP.map(function(x,i){return x?"ABCDEFGHIJ"[i]+":"+(x.e.textContent||"").trim().slice(0,24):null;});},layout:layout,help:help,exit:exit,tabStep:tabStep,key:key};
+})();
+</script>
+
+<style id="ui34css">
+#permov{position:fixed;inset:0;z-index:99995;background:rgba(2,8,18,.86);display:flex;align-items:center;justify-content:center;padding:12px}
+#permov[hidden]{display:none}
+#permov .box{width:min(560px,100%);max-height:94vh;overflow:auto;background:#0b1626;color:#e6f0ff;border:1px solid #2b5c9a;border-radius:10px;padding:14px 16px;font:13px/1.4 system-ui,sans-serif}
+#permov h3{margin:0 0 4px;font-size:17px}#permov p{margin:4px 0 8px;opacity:.85}
+#permov .pr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:6px 0;border-top:1px solid rgba(120,160,210,.25)}
+#permov .pr small{grid-column:1;opacity:.75}#permov .pr .st{grid-row:1/3;grid-column:2;align-self:center;font-weight:700;min-width:84px;text-align:right}
+#permov .ok{color:#6fe39a}#permov .ko{color:#ff8a7a}
+#permov .ac{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+#permov button{padding:8px 14px;border-radius:6px;border:1px solid #3a5a8a;background:#17315a;color:#fff;font-weight:600}
+#permov button.go{background:#f08a24;color:#111;border-color:#f08a24}
+</style>
+<script id="ui34js">
+(function(){
+var d=document,$=function(i){return d.getElementById(i);};
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}return null;}
+var ov=d.createElement("div");ov.id="permov";ov.hidden=true;
+var ITEMS=[
+ ["mic","Microphone","Enregistrer vos voix, créer des voices à partir d’un sample, enregistreur audio."],
+ ["midi","MIDI (USB / Bluetooth)","Brancher un clavier ou un contrôleur MIDI externe."],
+ ["store","Stockage permanent","Garder vos SF2, styles et réglages sans que le navigateur les efface."],
+ ["screen","Plein écran et paysage","Verrouiller l’affichage en paysage quand l’appareil le permet."]];
+var h='<div class="box"><h3>Autorisations de MegaVoice</h3><p>Pour que tout fonctionne dès le départ, l’App demande maintenant ses autorisations en une seule fois. Rien n’est envoyé sur Internet.</p>';
+ITEMS.forEach(function(x){h+='<div class="pr"><b>'+x[1]+'</b><span class="st" id="pst_'+x[0]+'">—</span><small>'+x[2]+'</small></div>';});
+h+='<p id="pmsg" style="font-size:12px"></p><div class="ac"><button type="button" id="pno">Plus tard</button><button type="button" class="go" id="pgo">Tout autoriser</button></div></div>';
+ov.innerHTML=h;d.body.appendChild(ov);
+function st(k,ok,t){var e=$("pst_"+k);e.textContent=t||(ok?"✓ Accordé":"✗ Refusé");e.className="st "+(ok?"ok":"ko");}
+function tm(p,ms){return Promise.race([p,new Promise(function(r){setTimeout(function(){r("timeout");},ms);})]);}
+var steps={
+ mic:function(){if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){st("mic",false,"Non disponible");return Promise.resolve();}
+  return tm(navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}),60000).then(function(s){if(s&&s.getTracks){s.getTracks().forEach(function(t){t.stop();});st("mic",true);}else st("mic",false);}).catch(function(){st("mic",false);});},
+ midi:function(){if(!navigator.requestMIDIAccess){st("midi",false,"Non disponible");return Promise.resolve();}
+  return tm(navigator.requestMIDIAccess({sysex:false}),60000).then(function(a){st("midi",!!(a&&a.inputs),(a&&a.inputs)?"✓ Accordé":"✗ Refusé");}).catch(function(){st("midi",false);});},
+ store:function(){if(!(navigator.storage&&navigator.storage.persist)){st("store",false,"Non disponible");return Promise.resolve();}
+  return navigator.storage.persist().then(function(ok){st("store",ok,ok?"✓ Accordé":"✗ Non accordé");}).catch(function(){st("store",false);});},
+ screen:function(){var H=d.documentElement,p=Promise.resolve(),ok=false;
+  try{if(H.requestFullscreen&&!d.fullscreenElement)p=H.requestFullscreen().then(function(){ok=true;});else ok=!!d.fullscreenElement;}catch(e){}
+  return p.then(function(){try{if(screen.orientation&&screen.orientation.lock)return screen.orientation.lock("landscape").then(function(){ok=true;});}catch(e){}}).catch(function(){}).then(function(){st("screen",ok,ok?"✓ Activé":"— Géré par l’App");});}};
+function run(){var b=$("pgo");b.disabled=true;b.textContent="En cours…";$("pmsg").textContent="Acceptez chaque demande qui s’affiche (une fenêtre du système apparaît pour chacune).";
+ var seq=Promise.resolve();["mic","midi","store","screen"].forEach(function(k){seq=seq.then(steps[k]);});
+ return seq.then(function(){ls("mvl_perm","1");b.textContent="Terminé";$("pmsg").textContent="Terminé. Vous pouvez relancer cette fenêtre à tout moment depuis Système > Son.";setTimeout(function(){ov.hidden=true;b.disabled=false;b.textContent="Tout autoriser";},1500);});}
+$("pgo").onclick=run;$("pno").onclick=function(){ls("mvl_perm","1");ov.hidden=true;};
+function show(){ov.hidden=false;}
+function addCard(){var hb=$("hapbtn"),par=hb&&hb.closest(".card");if(!par||$("permcard"))return;var c=d.createElement("div");c.className="card";c.id="permcard";c.innerHTML='<h4>Autorisations</h4><p class="hint">Micro, MIDI, stockage permanent, plein écran.</p><div class="row"><button id="permb" type="button">Demander les autorisations…</button></div>';par.parentNode.appendChild(c);$("permb").onclick=function(){show();};}
+addCard();
+if(!ls("mvl_perm")){var t=setInterval(function(){var i=$("intro");if(!i||getComputedStyle(i).display==="none"||i.offsetParent===null){clearInterval(t);setTimeout(show,300);}},300);setTimeout(function(){clearInterval(t);if(!ls("mvl_perm"))show();},12000);}
+window.MVPERM={show:show,run:run};
+})();
+</script>
+
 </body>
 </html>
