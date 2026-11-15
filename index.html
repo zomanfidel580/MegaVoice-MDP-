@@ -631,7 +631,7 @@ function gn(v){var g=ctx.createGain();g.gain.value=v;return g;}
 // Chaîne : distorsion -> tonalité -> chorus -> écho -> réverb -> égalisation 5 bandes -> compresseur
 function init(){
   if(ctx){if(ctx.state==="suspended")ctx.resume();return;}
-  try{ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:"interactive"});}catch(e){ctx=new (window.AudioContext||window.webkitAudioContext)();}
+  try{var _lh="interactive";try{if(localStorage.getItem("mvl_lat")==="min")_lh=0;}catch(e){}ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:_lh});}catch(e){try{ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:"interactive"});}catch(e2){ctx=new (window.AudioContext||window.webkitAudioContext)();}}
   var sr=ctx.sampleRate,i;
   N.bus=gn(1);N.dry=gn(1);N.pre=gn(1);N.ws=ctx.createWaveShaper();N.post=gn(0);N.mix=gn(1);
   var c=new Float32Array(2048);for(i=0;i<2048;i++){c[i]=Math.tanh((i/1024-1)*2.2);}
@@ -1556,6 +1556,7 @@ function idbLoad(){
 // ===== Ajouts selon la documentation Yamaha : PART SELECT, OTS, SYNC STOP, METRONOME, TEMPO +/-, VOICE EFFECT, FOOT PEDAL, REGISTRATION SEQUENCE, DIRECT ACCESS =====
 var sel="r1",touch="normal",sus=false,susH={},mono=false,lastR=null;
 function touchV(v){return touch==="hard"?Math.min(127,Math.round(127*Math.pow(v/127,.6))):touch==="soft"?Math.max(1,Math.round(127*Math.pow(v/127,1.6))):touch==="fixed"?100:v;}
+window.MVSELP=function(p){sel=p;try{buildPsel();buildList();}catch(e){}};
 function buildPsel(){var b=$("psel");b.innerHTML='<span class="lab">Part select</span>';
   [["l","LEFT"],["r1","RIGHT 1"],["r2","RIGHT 2"]].forEach(function(x){var e=document.createElement("button");e.textContent=x[1];e.setAttribute("aria-pressed",sel===x[0]);
     e.onclick=function(){sel=x[0];buildPsel();buildList();};b.appendChild(e);});}
@@ -2886,8 +2887,7 @@ new MutationObserver(go).observe($("pg-dk"),{childList:true,subtree:true});
 var d=document,de=d.documentElement,$=function(i){return d.getElementById(i);};
 /* Sélection de voix automatique */
 function tab(k){var b=$("tb-"+k);if(b)b.click();}
-$("br1").addEventListener("click",function(){setTimeout(function(){tab("voice");},0);});
-["bl","br2"].forEach(function(i){$(i).addEventListener("click",function(){setTimeout(function(){tab("parts");},0);});});
+[["bl","l"],["br1","r1"],["br2","r2"]].forEach(function(x){$(x[0]).addEventListener("click",function(){setTimeout(function(){if(window.MVSELP)MVSELP(x[1]);tab("voice");},0);});});
 /* Accord et gamme en temps réel */
 var bar=d.querySelector(".lcd .bar"),cs=d.createElement("div");cs.id="cs";cs.innerHTML='<em id="chn"><small>Accord</small>—</em><em id="scn"></em>';bar.appendChild(cs);
 var NM=["Do","Do#","Ré","Ré#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
@@ -4887,6 +4887,7 @@ c.innerHTML='<h4>Sortie du son · piano MIDI</h4>'+
 '<label>Piano (sortie MIDI) <select id="pn_out"></select></label>'+
 '<label>Canal de sortie <select id="pn_ch"></select></label>'+
 '<div class="row"><button type="button" id="pn_loc">Couper le son propre du piano (Local Off)</button><button type="button" id="pn_ref">Actualiser les appareils</button></div>'+
+'<label>Latence audio <select id="pn_lat"><option value="std">Équilibrée (par défaut)</option><option value="min">Minimale (réponse plus rapide, peut craquer)</option></select></label><p class="ps" id="pn_lt"></p>'+
 '<p class="ps" id="pn_st"></p>';
 par.parentNode.appendChild(c);
 var chs=$("pn_ch");for(var i=1;i<=16;i++){var o=d.createElement("option");o.value=i-1;o.textContent=String(i);chs.appendChild(o);}
@@ -4902,16 +4903,33 @@ function autoOut(){var ins=M.ins(),outs=M.outs(),pick="";if(M.out())return;var s
  if(sv&&outs.indexOf(sv)>=0)pick=sv;else for(var k=0;k<ins.length;k++)if(outs.indexOf(ins[k])>=0){pick=ins[k];break;}
  if(!pick&&outs.length===1)pick=outs[0];if(pick)M.setOut(pick);}
 function applyLoc(){if(M.mode()==="pno"&&M.out())M.local(!locOff);}
-$("pn_dev").onclick=function(){var was=M.mode();M.setMode("dev");ls("mvl_sout","dev");if(was==="pno"&&M.out()){if(locOff)M.local(true);M.setOut("");}fill();ui();};
-$("pn_pno").onclick=function(){if(!M.ready()){ui();return;}autoOut();fill();if(!M.out()){st("Aucun piano MIDI en sortie : branchez-le puis touchez « Actualiser ».");return;}M.setMode("pno");ls("mvl_sout","pno");applyLoc();fill();ui();};
+function setMode(m){if(m==="dev"){var was=M.mode();M.setMode("dev");ls("mvl_sout","dev");if(was==="pno"&&M.out()){if(locOff)M.local(true);M.setOut("");}fill();ui();return true;}
+ if(!M.ready()){ui();return false;}autoOut();fill();if(!M.out()){st("Aucun piano MIDI en sortie : branchez-le puis touchez « Actualiser ».");return false;}M.setMode("pno");ls("mvl_sout","pno");applyLoc();fill();ui();return true;}
+$("pn_dev").onclick=function(){setMode("dev");};
+$("pn_pno").onclick=function(){setMode("pno");};
 $("pn_out").onchange=function(){M.setOut(this.value);ls("mvl_pnoout",this.value);if(!this.value&&M.mode()==="pno"){M.setMode("dev");ls("mvl_sout","dev");}applyLoc();ui();};
 chs.onchange=function(){M.setCh(+this.value);ls("mvl_pnoch",this.value);applyLoc();};
 $("pn_loc").onclick=function(){locOff=!locOff;ls("mvl_pnoloc",locOff?"1":"0");if(M.out()){M.local(!(locOff&&M.mode()==="pno"));}ui();};
 $("pn_ref").onclick=function(){autoOut();fill();ui();};
+var lat=$("pn_lat");lat.value=ls("mvl_lat")==="min"?"min":"std";
+function ltx(){var x=window.MVQ&&MVQ.ctx&&MVQ.ctx();var t="Changement pris en compte après redémarrage de l’App. ";if(x){var bl=(x.baseLatency||0)*1000,ol=(x.outputLatency||0)*1000;t+="Latence mesurée : "+Math.round(bl+ol)+" ms (tampon "+Math.round(bl)+" ms"+(ol?" + sortie "+Math.round(ol)+" ms":"")+").";}else t+="La mesure apparaît après la première note.";$("pn_lt").textContent=t;}
+lat.onchange=function(){ls("mvl_lat",lat.value);ltx();};ltx();setInterval(ltx,3000);
 var sc=ls("mvl_pnoch");if(sc!==null)M.setCh(+sc);
 var n=0,t=setInterval(function(){n++;if(M.ready()){autoOut();if(ls("mvl_sout")==="pno"&&M.mode()!=="pno"&&M.out()){M.setMode("pno");applyLoc();}fill();ui();if(n>8||M.out())clearInterval(t);}else if(n>20)clearInterval(t);},1000);
 var tb=$("tb-sys");if(tb)tb.addEventListener("click",function(){setTimeout(function(){fill();ui();},40);});
 fill();ui();
+// bouton rapide dans la barre Mélodie + invitation à la première détection d’un piano
+var qb=null,bac=$("bac");
+function qui(){if(!qb)return;var has=M.ready()&&(M.outs().length>0);qb.hidden=!has&&M.mode()!=="pno";qb.textContent="Son : "+(M.mode()==="pno"?"Piano MIDI":"Appareil");qb.setAttribute("aria-pressed",M.mode()==="pno");}
+if(bac&&bac.parentNode){qb=d.createElement("button");qb.type="button";qb.id="pnoq";qb.hidden=true;qb.title="Choisir où le son sonne : sur l’appareil ou sur le piano MIDI branché";qb.className=bac.className;bac.parentNode.insertBefore(qb,bac.nextSibling);
+ qb.onclick=function(){if(M.mode()==="pno")setMode("dev");else if(!setMode("pno")){var t=$("tb-sys");if(t)t.click();}qui();};}
+var asked=ls("mvl_pnoask")==="1";
+function ask(){if(asked||!M.ready()||!M.ins().length||!M.outs().length||M.mode()==="pno")return;asked=true;ls("mvl_pnoask","1");
+ var b=d.createElement("div");b.style.cssText="position:fixed;left:50%;bottom:14px;transform:translateX(-50%);max-width:92vw;padding:12px 14px;border-radius:10px;background:rgba(4,12,26,.97);color:#fff;font:600 13px system-ui,sans-serif;z-index:99999;box-shadow:0 4px 18px rgba(0,0,0,.6);border:1px solid #2b5c9a";
+ b.innerHTML='<div style="margin-bottom:8px">Piano MIDI détecté : « '+M.ins()[0]+' ». Où doit sonner le son ?</div>';
+ var x=d.createElement("button"),y=d.createElement("button");x.textContent="Sur l’appareil";y.textContent="Sur le piano";y.style.cssText=x.style.cssText="margin-right:8px;padding:7px 12px;border-radius:6px;border:1px solid #3a5a8a;background:#17315a;color:#fff;font-weight:600";
+ x.onclick=function(){b.remove();};y.onclick=function(){setMode("pno");qui();b.remove();};b.appendChild(x);b.appendChild(y);d.body.appendChild(b);setTimeout(function(){if(b.parentNode)b.remove();},20000);}
+setInterval(function(){qui();ask();},2000);qui();
 })();
 </script>
 
